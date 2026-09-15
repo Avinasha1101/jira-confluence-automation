@@ -473,13 +473,13 @@ Success Message
 **Scope:** MVP presentation generation with Rally integration
 
 **Deliverables:**
-- [x] Rally API client with authentication
-- [x] Data retrieval for sprint information
-- [x] KPI calculation module
-- [x] PowerPoint generation (all 6 slides)
-- [x] Command-line interface
-- [x] Basic error handling (3-retry logic)
-- [x] File output to Desktop
+- [ ] Rally API client with authentication
+- [ ] Data retrieval for sprint information
+- [ ] KPI calculation module
+- [ ] PowerPoint generation (all 6 slides)
+- [ ] Command-line interface
+- [ ] Basic error handling (3-retry logic)
+- [ ] File output to Desktop
 
 **Success Metrics:**
 - Generate complete deck in < 30 seconds
