@@ -10,10 +10,10 @@ Derived from [project_spec.md](project_spec.md).
 
 ## Phase 1: Setup
 
-- [ ] Create the project skill directory/file structure for the `/weekly-report` slash command.
-- [ ] Define a config location (e.g. a small config file or skill frontmatter) for board/sprint ID and Confluence page target, using placeholder values until Prerequisites are resolved.
-- [ ] Confirm which Jira fields are available via the MCP connector (status, epic/workstream link, story points, blocked flag) and note any gaps against spec requirements.
-- [ ] Confirm which Confluence MCP operations are available (read page, update page) and note the page-update method to use (full body replace vs. section patch).
+- [ ] Create the project skill directory/file structure for the `/weekly-report` slash command. ([#1](https://github.com/Avinasha1101/jira-confluence-automation/issues/1))
+- [ ] Define a config location (e.g. a small config file or skill frontmatter) for board/sprint ID and Confluence page target, using placeholder values until Prerequisites are resolved. ([#2](https://github.com/Avinasha1101/jira-confluence-automation/issues/2))
+- [ ] Confirm which Jira fields are available via the MCP connector (status, epic/workstream link, story points, blocked flag) and note any gaps against spec requirements. ([#3](https://github.com/Avinasha1101/jira-confluence-automation/issues/3))
+- [ ] Confirm which Confluence MCP operations are available (read page, update page) and note the page-update method to use (full body replace vs. section patch). ([#4](https://github.com/Avinasha1101/jira-confluence-automation/issues/4))
 
 ## Phase 2: Core Features
 
