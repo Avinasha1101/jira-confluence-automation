@@ -6,8 +6,10 @@ This document provides a detailed, phase-based implementation plan for the Manag
 
 **Version:** 1.0  
 **Date:** December 25, 2024  
+**Updated:** December 25, 2024 (with clarifications)  
 **Product Manager:** Avinash Agarwal  
-**Target Delivery:** January 25, 2025 (4 weeks)
+**Target Delivery:** January 25, 2025 (4 weeks)  
+**Clarifications Status:** ✅ All 42 issues resolved (see `spec/clarifications-summary.md`)
 
 ---
 
@@ -82,29 +84,32 @@ Manager.AI/
 ---
 
 #### 0.2 Development Environment Setup
-**Time:** 1 hour  
+**Time:** 2 hours (updated from 1 hour)  
 **Priority:** Must Have
 
 **Activities:**
 - [ ] Install MCP CLI tools
-- [ ] Install Atlassian Jira MCP server
-- [ ] Install Atlassian Confluence MCP server
-- [ ] Authorize MCP servers with OAuth
+- [ ] Install official Atlassian Jira MCP server (clarified: official only, no custom)
+- [ ] Install official Atlassian Confluence MCP server
+- [ ] Authorize MCP servers with OAuth (see setup guide below)
 - [ ] Verify MCP connections work (/mcp-status)
 - [ ] Set up IDE (VSCode with Claude Code extension)
+- [ ] Document MCP setup in README (clarified: required)
 
-**Commands:**
+**MCP Setup Commands:**
 ```bash
-# Install MCP servers (if not already installed)
+# Install MCP servers
 npm install -g @modelcontextprotocol/cli
-npm install -g @modelcontextprotocol/server-atlassian-jira
-npm install -g @modelcontextprotocol/server-atlassian-confluence
+npm install -g @modelcontextprotocol/server-atlassian
+
+# Configure .mcp.json (create in project root)
+# See clarifications-summary.md for schema
 
 # Authorize in Claude Code
 # Settings → MCP Servers → Authorize Atlassian
 ```
 
-**Deliverable:** Authorized MCP environment
+**Deliverable:** Authorized MCP environment + setup documentation
 
 ---
 
