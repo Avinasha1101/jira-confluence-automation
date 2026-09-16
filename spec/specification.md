@@ -1,42 +1,37 @@
-# Specification: Turbo-Flux Showcase Deck Generator
+# Specification: Weekly Status Report Generator (Jira/Confluence Automation)
 
 ## Overview
 
-**Project Name:** Turbo-Flux Showcase Deck Automation  
-**Version:** 2.0 (SpecKit Format)  
-**Date:** September 15, 2026  
-**Product Manager:** Avinash Agarwal  
-**Company:** Cox Automotive  
+**Project Name:** Weekly Status Report Generator
+**Version:** 1.0 (SpecKit Format)
+**Product Manager:** Avinash Agarwal
 **Status:** Active Development
 
 ---
 
 ## Problem Statement
 
-The Turbo-Flux team at Cox Automotive currently spends significant time manually creating bi-weekly showcase presentations to report sprint accomplishments, KPIs, and team updates to stakeholders. This manual process is:
+As a Product Manager overseeing a 3-person team on a CRM project, producing a weekly status report for cross-functional stakeholders currently requires manually pulling data out of Jira, reformatting it, and copy-pasting the result into Confluence. This process is:
 
-- **Time-consuming:** 2-3 hours per sprint (5+ hours per month)
-- **Error-prone:** Manual data entry leads to inconsistencies
-- **Repetitive:** Same format, different data each sprint
-- **Dependent:** Requires PM involvement that could be automated
+- **Time-consuming:** Repetitive manual data pulls and formatting every week.
+- **Error-prone:** Manual transcription risks stale or inconsistent numbers.
+- **Inconsistent:** Report structure/format can drift week to week.
 
-**Goal:** Create an automated system that generates presentation-ready PowerPoint decks in < 30 seconds with minimal user intervention.
+**Goal:** Automate generation of a stakeholder-ready weekly status report from Jira sprint data, with a PM review step, publishing the approved result to a single persistent Confluence page.
 
 ---
 
 ## Objectives
 
 ### Primary Objectives
-1. **Automate presentation creation** from Rally (CA Agile Central) data
-2. **Reduce manual effort** by 90% (from 2+ hours to < 5 minutes)
-3. **Ensure consistency** across all generated decks
-4. **Improve accuracy** of sprint metrics and reporting
+1. Automate pulling sprint data from Jira into a structured report.
+2. Eliminate manual copy/paste into Confluence.
+3. Keep report format and content consistent week over week.
 
 ### Secondary Objectives
-1. **Provide clear feedback** during generation process
-2. **Handle error scenarios** gracefully
-3. **Enable future enhancements** (scheduling, email delivery, etc.)
-4. **Maintain credential security** with environment-based configuration
+1. Give the PM a review/approval step before anything is published.
+2. Keep report content accessible to stakeholders without Jira context.
+3. Leave room for future scheduling/trend features without over-building now.
 
 ---
 
@@ -44,300 +39,180 @@ The Turbo-Flux team at Cox Automotive currently spends significant time manually
 
 ### Functional Requirements
 
-#### FR1: Automated Data Retrieval
+#### FR1: Jira Data Retrieval
 ```
-Given: Rally API credentials are configured
-When: User executes the generator script
-Then: System retrieves current sprint data including:
-  - Sprint number and dates
-  - Planned story count and points
-  - Accepted stories and points
-  - Features completed in sprint
-```
-
-**Acceptance Criteria:**
-- System connects to Rally API within 5 seconds
-- Returns sprint data with 100% accuracy match to Rally UI
-- Handles missing optional fields gracefully
-- Validates data completeness before proceeding
-
-#### FR2: Presentation Generation (6-Slide Structure)
-
-**Slide 1: Project Overview**
-```
-Content:
-- Project: "VCA Voice Unified Settings Platform"
-- Team: "Turbo-Flux"
-- Sprint: [number from Rally]
-- Sprint Dates: [start] to [end]
-- Team Members:
-  - Kartik (Developer)
-  - Vishal (Developer)
-  - Ramesh (Developer)
-- Product Manager: Avinash Agarwal
-- Status: [Manual Input: On Track/At Risk/Behind]
-```
-
-**Slide 2: Sprint Progress**
-```
-Content:
-- Sprint identifier
-- Completed user stories (bulleted list of titles)
-- Total stories completed
-- Total story points completed
-```
-
-**Slide 3: Key Performance Indicators**
-```
-Metrics (Calculated):
-- Sprint Velocity: [Sum of accepted story points]
-- Planned vs Actual: [Planned] planned / [Actual] completed
-- Sprint Goal Achievement: [Percentage]%
-  Formula: (Count of accepted stories / Count of planned stories) × 100
-```
-
-**Slide 4: Team Updates**
-```
-Content:
-- List of completed user stories
-- Key accomplishments narrative
-- Features delivered in sprint
-- Number of stories completed
-```
-
-**Slide 5: Blockers & Risks**
-```
-Content:
-- Current blockers (manual input, optional)
-- Current risks (manual input, optional)
-- Display "No blockers or risks reported" if empty
-```
-
-**Slide 6: Rally Board Screenshot**
-```
-Content:
-- Embedded image of Rally board (user-provided)
-- Properly scaled and positioned
-- Supports: PNG, JPG, BMP formats
-```
-
-#### FR3: User Input Collection
-```
-System prompts user for:
-1. Project Status: On Track / At Risk / Behind (required)
-2. Blockers: Free text (optional)
-3. Risks: Free text (optional)
-4. Rally Board Screenshot: File path (required)
+Given: The Atlassian/Jira MCP connector is authorized
+When: The PM invokes the report generator
+Then: The system retrieves, for the configured board/sprint:
+  - Issues in Done/Resolved status (completed this week)
+  - Issues in In Progress / To Do status (in progress / planned)
+  - Issues flagged/status = Blocked
+  - Story points and issue counts by status
 ```
 
 **Acceptance Criteria:**
-- All prompts are clear and intuitive
-- Optional fields can be skipped
-- File paths are validated before use
-- Invalid inputs trigger helpful re-prompts
+- Data is scoped to the single configured board/sprint (no cross-project bleed).
+- Missing/absent blockers produce an empty result, not an error.
+- Issues are retrievable with their workstream/epic association for grouping.
 
-#### FR4: File Output Management
+#### FR2: Report Assembly (5 Sections)
+
+**Section 1: Executive Summary**
+```
+Content:
+- 2-3 sentence narrative: overall health, one key highlight, one key risk (if any)
+- Health signal derived from blocker count and % sprint completion
+```
+
+**Section 2: Completed This Week**
+```
+Content:
+- Issues moved to Done/Resolved within the reporting period
+- Grouped by workstream/epic (no per-person breakdown)
+```
+
+**Section 3: In Progress / Planned Next**
+```
+Content:
+- Current in-progress issues
+- Planned/To Do issues for the coming week
+- Grouped by workstream/epic
+```
+
+**Section 4: Risks / Blockers**
+```
+Content:
+- Issues with Blocked status/flag
+- Explicit "no current blockers" message when list is empty
+```
+
+**Section 5: Sprint Metrics**
+```
+Content:
+- % complete: story points (or issue count) done vs. total committed
+- Issue counts by status: To Do / In Progress / Blocked / Done
+```
+
+#### FR3: Review & Approval
+```
+System behavior:
+1. Draft report is assembled from live Jira data.
+2. Draft is presented to the PM for review/edit.
+3. Publish to Confluence only proceeds after explicit PM approval.
+```
+
+**Acceptance Criteria:**
+- No Confluence write occurs before approval is given.
+- PM can edit draft content before approval.
+
+#### FR4: Confluence Publish
 ```
 Output Specifications:
-- Format: Microsoft PowerPoint (.pptx)
-- Location: User's Desktop
-- Naming: Turbo-Flux_Showcase_Sprint_<number>.pptx
-- Example: Turbo-Flux_Showcase_Sprint_12.pptx
+- Target: a single, persistent Confluence page (space + page ID configured once)
+- Behavior: full-body replace of the page content with the approved report
+- History: relies on Confluence's native page version history (no new child page per week)
 ```
 
 **Acceptance Criteria:**
-- File is created on Desktop
-- Naming follows convention exactly
-- Deck is immediately usable (no post-generation editing needed)
-- Success message displays file location
+- Page content after publish matches the approved draft exactly.
+- Prior week's content is fully replaced, not appended.
 
 ### Non-Functional Requirements
 
 #### NFR1: Performance
-- **Generation Time:** Must complete in < 30 seconds (90% of cases < 20 seconds)
-- **API Timeouts:** Individual Rally API calls timeout after 10 seconds
-- **Data Processing:** KPI calculations complete in < 1 second
-- **File Save:** PowerPoint write completes in < 5 seconds
-- **Scalability:** Support sprints with up to 100 user stories
+- Full fetch-draft-publish flow completes in well under a minute for a typical sprint (≤ ~100 issues).
 
 #### NFR2: Reliability
-- **Retry Logic:** 3 attempts with exponential backoff for API failures
-- **Data Validation:** Verify all data before presentation generation
-- **Graceful Degradation:** Generate deck with partial data (with warnings)
-- **Error Recovery:** Clear error messages enable user self-service
-- **Logging:** All operations logged for troubleshooting
+- MCP authorization failures produce a clear, actionable message (not a silent failure).
+- Missing configuration (board/sprint ID, Confluence page) produces a clear setup-needed message.
 
 #### NFR3: Usability
-- **Clear Messaging:** Console output shows progress at each step
-- **Intuitive Prompts:** Human-readable, natural language input requests
-- **Helpful Errors:** Error messages include troubleshooting hints
-- **Confirmation:** Success message confirms file location and status
-- **Documentation:** README includes setup and execution examples
+- Report language is accessible to stakeholders unfamiliar with Jira terminology.
+- No per-person callouts in the stakeholder-facing report.
 
 #### NFR4: Security
-- **Credential Management:** All secrets stored in .env file
-- **No Code Secrets:** API keys never hardcoded in source
-- **Git Safety:** .env included in .gitignore
-- **Safe Logging:** No sensitive data in console output
-- **Input Validation:** All user inputs validated and sanitized
+- No Jira/Confluence credentials are handled directly by this project — access is delegated to the authorized MCP connector.
+- Any locally stored configuration (board/sprint ID, page target) contains no secrets.
 
 #### NFR5: Maintainability
-- **Modular Architecture:** Each component has single responsibility
-- **Code Documentation:** Functions and classes include docstrings
-- **Configuration Isolation:** All settings in configuration module
-- **Template Management:** Easy to modify slide structures
-- **Dependency Management:** Use requirements.txt for version control
+- Fetch and formatting logic are separated per section (per [backlog.md](../backlog.md) Phase 2 breakdown), so either can change independently.
 
 ---
 
 ## Data Requirements
 
-### Rally API Integration
+### Jira Integration (via MCP)
 
 #### Required Data Points
-```python
-# Sprint Information
-- Sprint Number (e.g., "Sprint 12")
-- Sprint Start Date
-- Sprint End Date
-- Total Planned Stories
-- Total Planned Story Points
+- Sprint/board identifier (configured once)
+- Per issue: title, status, epic/workstream link, story points, blocked flag/status
 
-# Story Information (per story)
-- Story Title
-- Story Description (for narrative)
-- Story Points (effort estimate)
-- Status: "Accepted" = Completed
-- Feature Association
+#### Scope Filter
+```
+Board/Sprint ID: <configured at setup>
+```
+No ad-hoc JQL, no full-project pull — strictly the configured board/sprint.
 
-# Feature Information
-- Feature Title
-- Associated Stories
-- Completion Status
+### Sprint Metrics Calculations
+
+#### % Complete
+```
+Formula: (story points or issues Done) / (total committed) × 100
 ```
 
-#### Rally API Queries
-```python
-# Get current/most recent sprint
-iteration_query = '(Project.Name = "VCA Voice Unified Settings Platform") AND (EndDate <= today) AND (StartDate >= today-30)'
-
-# Get accepted stories in sprint
-story_query = '(Iteration.Name = "Sprint <N>") AND (ScheduleState = "Accepted")'
-
-# Get all stories in sprint (planned)
-planned_query = '(Iteration.Name = "Sprint <N>")'
-
-# Get features for completed stories
-feature_query = '(Parent.State = "Accepted")'
+#### Status Counts
 ```
-
-#### Environment Variables
-```bash
-RALLY_API_KEY=<api_key>
-RALLY_SERVER=https://rally1.rallydev.com
-RALLY_WORKSPACE=<workspace_name>
-RALLY_PROJECT=VCA Voice Unified Settings Platform
-RALLY_USERNAME=<optional>
-```
-
-### KPI Calculations
-
-#### Sprint Velocity
-```
-Formula: Sum of story points for all stories with status = "Accepted"
-Example: 3 + 5 + 8 + 2 = 18 story points
-```
-
-#### Planned vs Actual
-```
-Planned: Sum of all story points at sprint start
-Actual: Sum of story points for accepted stories
-Display: "18 planned / 15 completed"
-```
-
-#### Sprint Goal Achievement
-```
-Formula: (Count of accepted stories / Count of planned stories) × 100
-Example: (12 accepted / 15 planned) × 100 = 80%
+Count of issues per status: To Do, In Progress, Blocked, Done
 ```
 
 ---
 
-## User Workflows
+## User Workflow
 
-### Primary Workflow: Generate Showcase Deck
-
+### Primary Workflow: Generate & Publish Weekly Report
 ```
-1. User executes: python generate_showcase_deck.py
-2. System validates Rally credentials
-3. System retrieves current sprint data
-4. System prompts user for manual inputs:
-   - Project status (On Track/At Risk/Behind)
-   - Blockers (optional)
-   - Risks (optional)
-   - Rally board screenshot path
-5. System validates screenshot file
-6. System generates 6-slide presentation
-7. System saves to Desktop with standard naming
-8. System displays success message with file path
+1. PM invokes the /weekly-report slash command.
+2. System fetches Jira data for the configured board/sprint via MCP.
+3. System assembles the 5-section report (Exec Summary, Completed, In Progress/Planned, Risks/Blockers, Metrics).
+4. System presents the draft to the PM.
+5. PM reviews/edits and approves.
+6. System publishes the approved content to the configured Confluence page, replacing prior content.
 ```
 
 ### Error Recovery Workflows
 
-#### Scenario 1: Rally Connection Failure
+#### Scenario 1: MCP Not Authorized
 ```
-1. System attempts Rally API connection
-2. Connection fails (timeout/auth error)
-3. System retries up to 3 times
-4. After 3 failures, displays error: "Rally authentication failed. Check API key in .env file"
-5. User updates .env and retries
+1. System attempts to call the Jira/Confluence MCP connector.
+2. Call fails due to missing authorization.
+3. System displays: "Jira/Confluence connector not authorized — authorize it via /mcp before running this report."
 ```
 
-#### Scenario 2: Invalid Screenshot Path
+#### Scenario 2: Missing Configuration
 ```
-1. User provides screenshot file path
-2. System checks file exists
-3. File not found
-4. System displays error: "File not found. Please enter valid screenshot path"
-5. User provides corrected path
-6. System validates and proceeds
+1. System looks up configured board/sprint ID or Confluence page target.
+2. Value is not set.
+3. System displays a setup-needed message identifying exactly which config item is missing.
 ```
 
-#### Scenario 3: Incomplete Sprint Data
+#### Scenario 3: Empty Sprint
 ```
-1. System retrieves sprint data
-2. Some fields are missing/incomplete
-3. System displays warning: "Some data is missing, generating with available information"
-4. System continues with partial data
-5. User is notified of missing information in console output
+1. System fetches sprint data.
+2. No completed, in-progress, or blocked issues found.
+3. System still generates a valid report, with each section stating there is nothing to report rather than rendering blank.
 ```
 
 ---
 
 ## Technology Stack
 
-### Core Technologies
-- **Language:** Python 3.8+
-- **PowerPoint Generation:** python-pptx
-- **Rally Integration:** pyral or requests
-- **Configuration:** python-dotenv
-- **Image Processing:** Pillow
-- **CLI Interface:** argparse
+- **Frontend:** React 18 + Vite (for any future draft-review UI)
+- **Backend:** Node.js + Express (orchestrates Jira/Confluence MCP calls, assembles report)
+- **Database:** PostgreSQL 15, via Docker (stores configuration and run history)
+- **Integration:** Jira and Confluence via Atlassian MCP connector
+- **Invocation:** Claude Code slash command / skill (`/weekly-report`)
 
-### Development Stack
-- **Package Manager:** pip
-- **Testing Framework:** pytest or unittest
-- **Version Control:** Git
-- **Code Quality:** flake8, black (optional)
-
-### Dependencies (requirements.txt)
-```
-python-pptx>=0.6.21
-pyral>=2.1.2
-python-dotenv>=0.19.0
-Pillow>=8.0.0
-requests>=2.26.0
-```
+See [constitution.md](constitution.md) for the governing engineering principles for this stack.
 
 ---
 
@@ -345,290 +220,90 @@ requests>=2.26.0
 
 ### Component Design
 
-#### 1. Configuration Manager
+#### 1. Config Store
 ```
-Responsibility: Load and validate environment settings
-Methods:
-  - load_env() → Dict
-  - validate_credentials() → Boolean
-  - get_rally_config() → RallyConfig
-  
-Error Handling:
-  - Missing .env file → Create template and exit
-  - Invalid keys → Display helpful error with sample
-  - Missing values → Display which keys are required
+Responsibility: Persist board/sprint ID and Confluence page target
+Storage: PostgreSQL
 ```
 
-#### 2. Rally API Client
+#### 2. Jira Fetch Layer
 ```
-Responsibility: Authenticate and retrieve Rally data
+Responsibility: Retrieve issues for the configured board/sprint via MCP
 Methods:
-  - connect() → Boolean
-  - get_current_sprint() → Sprint
-  - get_sprint_stories() → List[Story]
-  - get_story_details() → Story
-  - get_sprint_features() → List[Feature]
-  
-Features:
-  - 3-retry mechanism with exponential backoff
-  - Request timeout: 10 seconds
-  - Connection pooling for efficiency
-  - Error classification and logging
+  - fetchCompleted()
+  - fetchInProgressAndPlanned()
+  - fetchBlocked()
+  - fetchMetrics()
 ```
 
-#### 3. Data Processor
+#### 3. Report Assembler
 ```
-Responsibility: Calculate metrics and aggregate data
+Responsibility: Group and format fetched data into the 5-section markdown report
 Methods:
-  - calculate_velocity(stories) → int
-  - calculate_goal_achievement(planned, accepted) → float
-  - aggregate_accomplishments(stories) → String
-  - extract_feature_list(stories) → List[String]
-  
-Validation:
-  - Verify story point accuracy
-  - Validate date ranges
-  - Check for duplicate stories
+  - buildExecutiveSummary()
+  - buildCompletedSection()
+  - buildInProgressSection()
+  - buildRisksSection()
+  - buildMetricsSection()
+  - assembleReport()
 ```
 
-#### 4. User Input Handler
+#### 4. Review Gate
 ```
-Responsibility: Collect and validate manual inputs
-Methods:
-  - prompt_project_status() → String
-  - prompt_blockers() → String
-  - prompt_risks() → String
-  - prompt_screenshot_path() → Path
-  - validate_screenshot(path) → Boolean
-  
-Validation Rules:
-  - Status must be: On Track | At Risk | Behind
-  - Screenshot must be: PNG, JPG, or BMP
-  - File must exist and be readable
-  - Optional fields can be empty
+Responsibility: Present draft to PM and block publish until approved
 ```
 
-#### 5. Presentation Generator
+#### 5. Confluence Publish Layer
 ```
-Responsibility: Create PowerPoint presentation
-Methods:
-  - create_presentation() → Presentation
-  - add_title_slide(data) → Slide
-  - add_progress_slide(data) → Slide
-  - add_kpi_slide(data) → Slide
-  - add_updates_slide(data) → Slide
-  - add_blockers_slide(data) → Slide
-  - add_screenshot_slide(data) → Slide
-  - save_presentation(path) → Boolean
-  
-Features:
-  - Consistent formatting across all slides
-  - Professional color scheme
-  - Slide numbers on all slides
-  - Optimized image scaling for screenshots
+Responsibility: Replace the configured Confluence page's body with the approved report
 ```
 
-#### 6. Error Handler
+### Data Flow
 ```
-Responsibility: Centralized error management
-Methods:
-  - handle_api_error(error) → String
-  - handle_file_error(error) → String
-  - handle_validation_error(error) → String
-  - log_error(error, context) → void
-  
-Categories:
-  - API Errors (authentication, timeout, not found)
-  - File System Errors (missing file, disk full, permissions)
-  - Validation Errors (invalid input, missing data)
-  - Unknown Errors (with diagnostic info)
-```
-
-### Data Flow Diagram
-```
-User Execution
+/weekly-report invoked
     ↓
-Configuration Load
+Config lookup (board/sprint ID, Confluence page)
     ↓
-Rally Connection & Auth
+Jira MCP fetch (completed, in-progress, blocked, metrics)
     ↓
-Sprint Data Retrieval
+Report assembly (5 sections)
     ↓
-User Input Collection
+PM review & approval
     ↓
-Data Processing & Validation
-    ↓
-Presentation Generation
-    ↓
-File Save & Output
-    ↓
-Success Message
+Confluence MCP publish (full-body replace)
 ```
 
 ---
 
 ## Implementation Plan
 
-### Phase 1: Core Functionality (Weeks 1-3)
-**Scope:** MVP presentation generation with Rally integration
-
-**Deliverables:**
-- [ ] Rally API client with authentication
-- [ ] Data retrieval for sprint information
-- [ ] KPI calculation module
-- [ ] PowerPoint generation (all 6 slides)
-- [ ] Command-line interface
-- [ ] Basic error handling (3-retry logic)
-- [ ] File output to Desktop
-
-**Success Metrics:**
-- Generate complete deck in < 30 seconds
-- All 6 slides display correctly
-- All KPI calculations match Rally data
-- File saves to Desktop with correct naming
-
-### Phase 2: Enhancement & Polish (Week 4)
-**Scope:** Refinement and comprehensive testing
-
-**Deliverables:**
-- [ ] Enhanced error messages with troubleshooting
-- [ ] Improved narrative generation for accomplishments
-- [ ] Better slide formatting and styling
-- [ ] Comprehensive unit and integration tests
-- [ ] Documentation and README
-
-**Success Metrics:**
-- 80%+ code coverage in tests
-- All error scenarios handled gracefully
-- User accepts deck without post-generation edits
-
-### Phase 3: Future Enhancements (Backlog)
-**Scope:** Advanced features for future releases
-
-**Potential Features:**
-- Automated scheduling (bi-weekly via Task Scheduler)
-- Email delivery of generated deck
-- Historical trend charts (velocity over time)
-- Custom slide templates
-- Web-based UI (alternative to CLI)
-- Export to PDF and Google Slides
-- Team email notifications
+See [backlog.md](../backlog.md) for the full phased task breakdown (Setup, Core Features, Integration, Testing, Documentation).
 
 ---
 
 ## Testing Strategy
 
-### Unit Tests
-```python
-# Configuration Manager
-test_load_valid_env()
-test_missing_env_file()
-test_invalid_credential_format()
-
-# Data Processor
-test_velocity_calculation()
-test_goal_achievement_calculation()
-test_story_aggregation()
-test_feature_extraction()
-
-# Rally API Client
-test_successful_connection()
-test_authentication_failure()
-test_connection_timeout()
-test_sprint_retrieval()
-test_retry_logic()
-```
-
-### Integration Tests
-```python
-# End-to-End
-test_full_generation_with_mock_rally()
-test_generation_with_incomplete_data()
-test_file_creation_and_naming()
-
-# Rally Integration
-test_live_rally_connection()
-test_current_sprint_retrieval()
-test_story_data_accuracy()
-
-# File Operations
-test_desktop_file_creation()
-test_file_overwrite_behavior()
-test_screenshot_embedding()
-```
+### Automated Tests
+- Grouping logic (workstream/epic) — multiple issues, single issue, no issues.
+- Sprint metrics calculation — normal, zero-total, all-complete cases.
+- Blocker formatting — including empty-state message.
+- Executive summary health-signal derivation.
 
 ### Manual Acceptance Tests
-```
-✓ Generate deck with real Rally sprint data
-✓ Verify all 6 slides contain expected content
-✓ Confirm all metrics match Rally dashboard
-✓ Test with various sprint scenarios:
-  - Complete sprint (all stories accepted)
-  - Partial sprint (some stories incomplete)
-  - No stories in sprint
-  - Large sprint (50+ stories)
-✓ Validate screenshot scaling on different image sizes
-✓ Verify error handling with network interruptions
-✓ Confirm user can execute without developer assistance
-```
+- End-to-end dry run against a real configured sprint.
+- Empty-sprint edge case produces a sensible, non-blank report.
+- Review/approval gate actually blocks publish until confirmed.
+- Confluence page is fully replaced, not appended, after publish.
 
 ---
 
 ## Success Criteria
 
-The Showcase Deck Generator will be considered **complete and successful** when:
-
-### Performance
-- [x] Deck generation completes in < 30 seconds (90% of cases < 20 seconds)
-- [x] Rally API connection established within 5 seconds
-- [x] No user perceivable lag during file operations
-
-### Accuracy
-- [x] All 6 slides present and properly formatted
-- [x] Rally data matches Rally UI with 100% accuracy
-- [x] KPI calculations verified against manual calculations
-- [x] Sprint dates and metadata correct
-
-### Usability
-- [x] Deck is presentation-ready (minimal/no post-generation editing)
-- [x] User can execute without developer assistance
-- [x] Console messages are clear and helpful
-- [x] Error messages provide actionable next steps
-
-### Reliability
-- [x] System handles all documented error scenarios
-- [x] 3-retry logic prevents transient failures
-- [x] Graceful degradation with partial data
-- [x] No data loss or corruption scenarios
-
-### Quality
-- [x] Code coverage ≥ 80%
-- [x] All tests pass (unit, integration, acceptance)
-- [x] Code follows PEP 8 style standards
-- [x] Documentation complete and accurate
-
----
-
-## Acceptance Criteria
-
-### Definition of Done
-A user story is complete when:
-1. Code changes implemented and reviewed
-2. All unit tests pass with >80% coverage
-3. Integration tests pass with real/mock data
-4. Manual testing validates acceptance criteria
-5. Code review approved by another developer
-6. Documentation updated
-7. No console warnings or debug output
-
-### User Acceptance Criteria
-For each generated deck:
-1. User can open .pptx file without errors
-2. All 6 slides display with expected content
-3. No visual formatting issues or broken layouts
-4. All data matches Rally and user inputs
-5. File named correctly on Desktop
-6. User receives success confirmation message
+- [ ] Report is generated from live Jira data with no manual data entry.
+- [ ] All 5 sections render correctly, including empty-state messaging.
+- [ ] No Confluence write occurs without explicit PM approval.
+- [ ] Confluence page reflects the approved report exactly after publish.
+- [ ] MCP authorization and missing-config failures produce clear, actionable messages.
 
 ---
 
@@ -636,13 +311,10 @@ For each generated deck:
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|-----------|
-| Rally API changes | Medium | High | Monitor Rally docs, version API calls, maintain compatibility layer |
-| API rate limiting | Low | Medium | Cache responses, optimize queries, implement backoff |
-| Incomplete sprint data | Medium | Medium | Validate completeness, provide clear warnings, continue with partial data |
-| Screenshot quality | Medium | Low | Support multiple formats (PNG/JPG/BMP), implement resize |
-| Credential exposure | Low | Critical | Use .env files, .gitignore, user education, no logging of secrets |
-| Network interruptions | Low | High | 3-retry with backoff, timeouts, clear error messages |
-| Desktop path issues | Low | Medium | Validate path accessibility, clear permission error messages |
+| MCP connector not authorized | Medium | High | Clear setup error directing PM to authorize via `/mcp` |
+| Board/sprint or Confluence page misconfigured | Medium | Medium | Explicit missing-config messaging naming the exact item |
+| Empty sprint data | Low | Low | Explicit empty-state messaging per section |
+| Confluence full-page overwrite removes unrelated content | Low | Medium | Page is dedicated to this report only; scope confirmed at setup |
 
 ---
 
@@ -650,99 +322,10 @@ For each generated deck:
 
 | Term | Definition |
 |------|-----------|
-| **Rally** | CA Agile Central - Agile project management platform |
-| **Sprint** | 2-week development iteration cycle |
-| **Story Point** | Unit of effort estimation for user stories |
-| **Velocity** | Total story points completed in a sprint |
-| **Accepted** | Rally status indicating story completion |
-| **Feature** | Mid-level work item; child of Epic |
-| **User Story** | Granular deliverable work item; child of Feature |
-| **VCA** | Voice Unified Settings Platform (project name) |
-| **Turbo-Flux** | Team name at Cox Automotive |
-| **Showcase Deck** | PowerPoint presentation summarizing sprint results |
-
----
-
-## Appendices
-
-### Appendix A: Sample .env Configuration
-```env
-# Rally API Configuration
-RALLY_API_KEY=_your_rally_api_key_here_
-RALLY_SERVER=https://rally1.rallydev.com
-RALLY_WORKSPACE=Cox Automotive
-RALLY_PROJECT=VCA Voice Unified Settings Platform
-RALLY_USERNAME=optional_username
-```
-
-### Appendix B: Expected Console Output
-```
-=== Turbo-Flux Showcase Deck Generator ===
-
-Connecting to Rally...
-✓ Rally connection successful
-
-Retrieving sprint data...
-✓ Found Sprint 12 (01/15/2024 - 01/28/2024)
-✓ Retrieved 15 user stories (12 accepted)
-✓ Calculated velocity: 45 story points
-
-Enter project status (On Track/At Risk/Behind): On Track
-Enter blockers (or press Enter to skip): 
-Enter risks (or press Enter to skip): API rate limiting concerns
-Enter path to Rally board screenshot: C:\Users\Avinash\Desktop\rally_board.png
-✓ Screenshot loaded
-
-Generating presentation...
-✓ Slide 1: Project Overview
-✓ Slide 2: Sprint Progress
-✓ Slide 3: KPIs
-✓ Slide 4: Team Updates
-✓ Slide 5: Blockers/Risks
-✓ Slide 6: Rally Board Screenshot
-
-Saving to Desktop...
-✓ SUCCESS: Turbo-Flux_Showcase_Sprint_12.pptx saved to Desktop
-
-Deck generation complete!
-```
-
-### Appendix C: Rally API Query Examples
-```python
-# Get current/most recent sprint
-iteration_query = '''
-(Project.Name = "VCA Voice Unified Settings Platform") 
-AND (EndDate <= today) 
-AND (StartDate >= today-30)
-'''
-
-# Get accepted stories in sprint
-story_query = '''
-(Iteration.Name = "Sprint 12") 
-AND (ScheduleState = "Accepted")
-'''
-
-# Get all planned stories in sprint
-all_stories_query = '''
-(Iteration.Name = "Sprint 12")
-'''
-```
-
-### Appendix D: Execution Instructions
-```bash
-# Installation
-1. Clone repository
-2. Install Python 3.8+
-3. pip install -r requirements.txt
-4. Create .env file with Rally credentials
-5. Verify .gitignore includes .env
-
-# Execution
-python generate_showcase_deck.py
-
-# Expected Duration
-30-60 seconds total (most of which is Rally API calls)
-```
+| **Board/Sprint** | The single Jira board or sprint this report is scoped to |
+| **Workstream/Epic** | Grouping used to organize issues in the report instead of by assignee |
+| **MCP** | Model Context Protocol — used here to connect to Jira/Confluence without custom API code |
+| **Blocked** | Jira status/flag used to identify risks for the Risks/Blockers section |
 
 ---
 
@@ -750,18 +333,11 @@ python generate_showcase_deck.py
 
 | Version | Date | Author | Change Summary |
 |---------|------|--------|-----------------|
-| 1.0 | 2024 | CodeMie Developer | Initial specification |
-| 2.0 | Sept 15, 2026 | Claude Code | Converted to SpecKit format, enhanced structure |
+| 1.0 | 2026-09-16 | Claude Code | Initial SpecKit-format specification for weekly status report generator, replacing prior unrelated specification.md content |
 
 ---
 
 ## Sign-off
 
-**Product Manager:** Avinash Agarwal  
-**Development Lead:** [To be assigned]  
-**QA Lead:** [To be assigned]  
+**Product Manager:** Avinash Agarwal
 **Status:** Ready for Implementation
-
----
-
-**End of Specification Document**
