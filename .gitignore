@@ -1,0 +1,62 @@
+# --- Secrets and credentials -------------------------------------------------
+# Never commit tokens. GITHUB_PAT for the github MCP server belongs in the OS
+# environment or in .claude/settings.local.json, both of which stay out of git.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.json
+credentials.json
+
+# --- Claude Code -------------------------------------------------------------
+# settings.local.json is per-machine and may hold an env block with tokens.
+# .claude/settings.json (shared project settings) stays tracked.
+.claude/settings.local.json
+
+# --- VS Code -----------------------------------------------------------------
+# Most of .vscode/ is per-machine, but mcp.json and settings.json are shared
+# project config and are already tracked, so they are re-included below.
+.vscode/*
+!.vscode/settings.json
+!.vscode/mcp.json
+!.vscode/mcp-echo.ps1
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# --- Python ------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+venv/
+.venv/
+env/
+ENV/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+
+# --- OS and editor noise -----------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.idea/
+node_modules/
+dist/
+data/
+web/node_modules/
+web/dist/
+coverage/

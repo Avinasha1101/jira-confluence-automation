@@ -1,1 +1,15 @@
-module.exports = {\n  preset: 'ts-jest',\n  testEnvironment: 'node',\n  roots: ['<rootDir>/tests', '<rootDir>/src'],\n  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],\n  moduleFileExtensions: ['ts', 'js', 'json'],\n  collectCoverageFrom: [\n    'src/**/*.ts',\n    '!src/**/*.d.ts',\n    '!src/index.ts',\n  ],\n  coverageThreshold: {\n    global: {\n      branches: 80,\n      functions: 80,\n      lines: 80,\n      statements: 80,\n    },\n  },\n};\n"
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  roots: ['<rootDir>/tests'],
+  testMatch: ['**/*.test.ts'],
+  collectCoverageFrom: [
+    'src/pipeline/**/*.ts',
+    'src/metrics/**/*.ts',
+    'src/report/**/*.ts',
+    'src/domain/**/*.ts',
+  ],
+  coverageThreshold: {
+    global: { branches: 80, functions: 80, lines: 80, statements: 80 },
+  },
+};

@@ -1,8 +1,12 @@
-{ 
-  "servers": { 
-    "echo-windows": { 
-      "command": "powershell", 
-      "args": ["-ExecutionPolicy", "Bypass", "-File", "./mcp.json"] 
-    }  
-  }  
-}  
+{
+  "servers": {
+    "echo-windows": {
+      "command": "powershell",
+      "args": ["-ExecutionPolicy", "Bypass", "-File", "./.vscode/mcp-echo.ps1"]
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    }
+  }
+}

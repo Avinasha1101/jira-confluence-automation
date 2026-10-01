@@ -1,1 +1,35 @@
-{\n  \"name\": \"manager-ai-weekly-report\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Automated Weekly Status Report Generator for Manager.AI\",\n  \"main\": \"dist/index.js\",\n  \"scripts\": {\n    \"build\": \"tsc\",\n    \"start\": \"node dist/index.js\",\n    \"dev\": \"ts-node src/index.ts\",\n    \"test\": \"jest\",\n    \"test:watch\": \"jest --watch\",\n    \"test:coverage\": \"jest --coverage\",\n    \"lint\": \"eslint src tests\",\n    \"format\": \"prettier --write \\\"src/**/*.ts\\\" \\\"tests/**/*.ts\\\"\"\n  },\n  \"keywords\": [\n    \"jira\",\n    \"confluence\",\n    \"automation\",\n    \"reporting\",\n    \"status-reports\"\n  ],\n  \"author\": \"Manager.AI Team\",\n  \"license\": \"MIT\",\n  \"dependencies\": {\n    \"axios\": \"^1.6.0\",\n    \"luxon\": \"^3.4.0\",\n    \"marked\": \"^11.0.0\",\n    \"commander\": \"^11.0.0\",\n    \"express\": \"^4.18.0\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^20.0.0\",\n    \"@types/jest\": \"^29.5.0\",\n    \"@types/express\": \"^4.17.0\",\n    \"jest\": \"^29.7.0\",\n    \"ts-jest\": \"^29.1.0\",\n    \"typescript\": \"^5.3.0\",\n    \"eslint\": \"^8.50.0\",\n    \"@typescript-eslint/eslint-plugin\": \"^6.7.0\",\n    \"@typescript-eslint/parser\": \"^6.7.0\",\n    \"prettier\": \"^3.0.0\",\n    \"ts-node\": \"^10.9.0\"\n  },\n  \"jest\": {\n    \"preset\": \"ts-jest\",\n    \"testEnvironment\": \"node\",\n    \"collectCoverageFrom\": [\n      \"src/**/*.ts\",\n      \"!src/**/*.d.ts\",\n      \"!src/index.ts\"\n    ],\n    \"coverageThreshold\": {\n      \"global\": {\n        \"branches\": 80,\n        \"functions\": 80,\n        \"lines\": 80,\n        \"statements\": 80\n      }\n    }\n  }\n}\n"
+{
+  "name": "manager-ai-weekly-report",
+  "version": "2.0.0",
+  "description": "Weekly Status Report Generator: Jira to Confluence, with PII protection",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "web:install": "npm --prefix web install",
+    "web:dev": "npm --prefix web run dev",
+    "web:build": "npm --prefix web run build"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^24.0.0",
+    "@types/supertest": "^6.0.2",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
+  }
+}

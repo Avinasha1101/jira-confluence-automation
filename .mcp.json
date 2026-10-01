@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "echo-windows": {
+      "type": "stdio",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "./.vscode/mcp-echo.ps1"
+      ],
+      "env": {}
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_PAT}"
+      }
+    }
+  }
+}
